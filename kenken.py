@@ -15,6 +15,7 @@ import sys
 import coordinate
 import constraint
 import os
+import numpy as np
 from arcConsistency import arcConsistency
 from backtrack import BackTrack
 
@@ -50,7 +51,7 @@ def parseConstraint(line):
         func = kkCon
     else:
         raise NameError("Could not parse function in constraint: " + tokens[0])
-    
+
     #Make sure that the proposed result checks out
     try:
         if (int(tokens[1])%1 != 0.0):
@@ -133,7 +134,7 @@ def kkCon(*args):
     """
     KenKen constant evaluator
     This just returns what's in the box
-    """ 
+    """
     if (None in args):
         return None
     return args[0]
@@ -146,7 +147,7 @@ class Board:
     When instantiated, the Board generates all of the Coordinates it needs.
     The Board does NOT generate the constraints for you, and must be supplied
     through the 'addConstraint' method.
-    
+
     Once constraints are added, the board is a good container for all game state information.
     Constraints can be retrieved using getConstraint/getConstraints and the constraints then
     have their own isBroken method, which only relies on its own data to check
@@ -176,7 +177,7 @@ class Board:
 
     def addConstraint(self, constraint):
         self.constraints.append(constraint)
-        
+
     def getConstraints(self):
         return self.constraints
 
@@ -201,7 +202,7 @@ def generateRCConstraints(board):
 
 def generateArithmeticConstraint(board, simpleConstraint):
     """
-    Generates an ArithmeticConstraint object from the 
+    Generates an ArithmeticConstraint object from the
     simple tuplified constraints created in parseConstraint(line)
     funtion call, located elsewhere in this file
     """
@@ -211,7 +212,7 @@ def generateArithmeticConstraint(board, simpleConstraint):
     for x,y in simpleConstraint[2]:
         coordinates.append(board.getCoordinate(x, y))
     return constraint.ArithmeticConstraint(func, result, coordinates)
-    
+
 
 
 def main(kenkenFileName, method):
@@ -222,10 +223,10 @@ def main(kenkenFileName, method):
         kkFile = open(kenkenFileName)
     except IOError:
         raise IOError("Error: could not find KenKen file '" + sys.argv[1] + "'")
-    
+
     #Get a list of non-trivial lines from the KenKen config file
     kenkenLines = [line.strip() for line in kkFile.readlines() if line is not '']
-    
+
     #The first line should be the size of the board.
     try:
         if (float(kenkenLines[0]) % 1 != 0):
@@ -237,13 +238,13 @@ def main(kenkenFileName, method):
     #Initialize the board
     #This will go ahead and also create the Coordinate objects and place them inside the board
     kenkenBoard = Board(boardSize)
-    
+
     #Generate the RCConstraints (RC = Row and Column)
     for rowColumnConstraint in generateRCConstraints(kenkenBoard):
         kenkenBoard.addConstraint(rowColumnConstraint)
         for coord in rowColumnConstraint.getCoordinates():
             coord.addConstraint(rowColumnConstraint)
-    
+
     #Parse the ArithmeticConstraints and add them to the board
     #See puzzles/puzzle_example.kk for how KenKen layout files should look
     for line in kenkenLines[1:]:
@@ -252,13 +253,13 @@ def main(kenkenFileName, method):
         kenkenBoard.addConstraint(arithmeticConstraint)
         for coord in arithmeticConstraint.getCoordinates():
             coord.addConstraint(arithmeticConstraint)
-    
+
     #######
     # At this point in the main sequence, the kenkenBoard is entirely configured
     # The Coordinates have been established, and both the Row/Column and Arithmetic
     # constraints have been created and added to the kenkenBoard
     # Now it's time to solve the damn thing.
-    # 
+    #
     # For now, only a naive arcConsistency method is implemented.
     # Future revisions can add some command line arg checking to determine which
     # method to use to solve the board.
@@ -280,15 +281,22 @@ def main(kenkenFileName, method):
 
     solved = solveIt()
     if (solved == True):
+        size = int(kenkenBoard.getSize())
+        solved_matrix = np.zeros((size, size))        
         print("Solution Found:")
         for i in range(kenkenBoard.getSize()):
             print("Column " + str(i))
             print("##########")
             for j in range(kenkenBoard.getSize()):
-                print("(" + str(kenkenBoard.getCoordinate(i, j).getX()) + "," +
-                    str(kenkenBoard.getCoordinate(i,j).getY()) + "): " +
-                     str(kenkenBoard.getCoordinate(i,j).getValue()))
+                x_cord = kenkenBoard.getCoordinate(i, j).getX()
+                y_cord = kenkenBoard.getCoordinate(i,j).getY()
+                val = kenkenBoard.getCoordinate(i,j).getValue()
+                print("(" + str(x_cord) + "," +
+                    str(y_cord) + "): " +
+                     str(val))
+                solved_matrix[x_cord, y_cord] = val
             print("")
+        print solved_matrix
     else:
         print("No solution was found. Perhaps the KenKen file is misconfigured?")
 
@@ -299,6 +307,3 @@ if __name__ == "__main__":
         main(sys.argv[1], None)
     if (len(sys.argv) == 4 and sys.argv[2] == "-m"):
         main(sys.argv[1], sys.argv[3])
-
-
-
