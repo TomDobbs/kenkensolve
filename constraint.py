@@ -12,10 +12,10 @@ class Constraint:
         """
         Returns list of coordinates involved with the constraint
         """
-    
+
     def isBroken(self):
         """
-        Returns True IFF the values assigned to the coordinates 
+        Returns True IFF the values assigned to the coordinates
         within the constraint violate the constraint
         """
 
@@ -53,7 +53,7 @@ class RCConstraint(Constraint):
         #start by sanity checking that there are enough values given
         if (len(values) != len(self.coordinates)):
             raise Exception("RCConstraint broken")
-        return len(set(values)) == len(values) #True IFF values has no duplicates
+        return sorted(set(values)) == sorted(values) #True IFF values has no duplicates
 
 class ArithmeticConstraint(Constraint):
     """
@@ -72,7 +72,7 @@ class ArithmeticConstraint(Constraint):
         self.func = func
         self.coordinates = coordinates
         self.result = result
-        
+
     def includesCoordinate(self, coordinate):
         return coordinate in self.getCoordinates()
 

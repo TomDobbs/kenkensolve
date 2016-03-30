@@ -16,6 +16,7 @@ import coordinate
 import constraint
 import os
 import numpy as np
+import pandas as pd
 from arcConsistency import arcConsistency
 from backtrack import BackTrack
 
@@ -164,13 +165,13 @@ class Board:
 
     def getColumn(self, colNum):
         #Return a list of coordinates making up a column
-        return self.coordinates[colNum*self.size:(colNum+1)*self.size]
+        return self.coordinates[colNum * self.size : (colNum+1) * self.size]
 
     def getRow(self, rowNum):
         #Return a list of coordinates making up a row
         row = []
         i = rowNum
-        while (i < self.size*self.size):
+        while (i < self.size * self.size):
             row.append(self.coordinates[i])
             i += self.size
         return row
@@ -282,20 +283,20 @@ def main(kenkenFileName, method):
     solved = solveIt()
     if (solved == True):
         size = int(kenkenBoard.getSize())
-        solved_matrix = np.zeros((size, size))        
+        solved_matrix = np.zeros((size, size))
         print("Solution Found:")
         for i in range(kenkenBoard.getSize()):
-            print("Column " + str(i))
-            print("##########")
+            # print("Column " + str(i))
+            # print("##########")
             for j in range(kenkenBoard.getSize()):
                 x_cord = kenkenBoard.getCoordinate(i, j).getX()
                 y_cord = kenkenBoard.getCoordinate(i,j).getY()
                 val = kenkenBoard.getCoordinate(i,j).getValue()
-                print("(" + str(x_cord) + "," +
-                    str(y_cord) + "): " +
-                     str(val))
+                # print("(" + str(x_cord) + "," +
+                #     str(y_cord) + "): " +
+                #      str(val))
                 solved_matrix[x_cord, y_cord] = val
-            print("")
+            # print("")
         print solved_matrix
     else:
         print("No solution was found. Perhaps the KenKen file is misconfigured?")
