@@ -25,7 +25,7 @@ class arcConsistency():
             for constraint in coord.getConstraints():
                 if (coord, constraint) not in self.consistencyQueue:
                     self.consistencyQueue.append((coord, constraint))
- 
+
     def arcConsistencyHelper(self):
         """
         The helper function is recurses every time the queue is emptied,
@@ -47,7 +47,7 @@ class arcConsistency():
                 else:
                     currentCoordinate.removeFromDomain(value)
                     self.addRelatedToQueue(currentCoordinate)
-            #When arcConsistencyHelper terminates, it returns and the board's coordinates and their domains 
+            #When arcConsistencyHelper terminates, it returns and the board's coordinates and their domains
             #have been modified.
 
 
@@ -57,7 +57,7 @@ class arcConsistency():
         and backtracking. The Algorithm will run arcConsistency,
         find the smallest remaining domain (that's greater than 1), and
         systematically assign a value to the variable and recurse onwards.
-        Returns True is a solution is found, False otherwise.
+        Returns True if a solution is found, False otherwise.
         """
         self.arcConsistencyHelper()
         if self.isSolved():
@@ -77,13 +77,13 @@ class arcConsistency():
                     return True
                 self.restoreDomains(self.backupDomains(savedDomains))
             else:
-                return False 
+                return False
 
     def solveWithLCV(self):
         """
         Works the same as solveWithBackTracking, but assigns the variable
-        in an order such that you assign the least constraining value first.  
-        That is, assign the value which would cause the least domain pruning 
+        in an order such that you assign the least constraining value first.
+        That is, assign the value which would cause the least domain pruning
         after running arcConsistency.
         """
         self.arcConsistencyHelper()
@@ -109,7 +109,7 @@ class arcConsistency():
                         resultingDomainsList.remove((assignment, resultingDomains)) #This assignment cannot work
                         break
             #compute resulting total domain sizes
-            mappedTotalDomainSizes = list(map(self.totalSizeOfDomains, 
+            mappedTotalDomainSizes = list(map(self.totalSizeOfDomains,
                                                 [domains for assignment, domains in resultingDomainsList]))
             #pick the assigned variables, ordered by resulting domain size
             for i in range(len(resultingDomainsList)):
